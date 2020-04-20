@@ -1,0 +1,113 @@
+<?php
+
+/**
+ * @file
+ * Contains the doi_crossref.module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\Node;
+
+/**
+ * Implements hook_form_alter().
+ */
+function doi_crossref_form_alter(&$form, FormStateInterface &$form_state, $form_id) {
+  // Inject fields required by this minter into the Persistent Identifier admin form.
+  if ($form_id == 'persistent_identifiers_admin_settings') {
+    $config = \Drupal::config('doi_crossref.settings');
+    $form['doi_crossref_api_endpoint'] = [
+      '#type' => 'textfield',
+      '#access' => TRUE,
+      '#title' => t('CrossRef API endpoint'),
+      '#default_value' => $config->get('doi_crossref_api_endpoint'),
+      '#description' => t("The CrossRef API endpoint URL."),
+      '#states' => [
+        'visible' => [
+          ':input[id="persistent_identifiers_minter"]' => ['value' => 'doi_crossref.minter.crossrefdois'],
+        ],
+      ],
+    ];
+    $form['doi_crossref_prefix'] = [
+      '#type' => 'textfield',
+      '#access' => TRUE,
+      '#title' => t('DOI prefix'),
+      '#default_value' => $config->get('doi_crossref_prefix'),
+      '#description' => t("Your institution's DOI prefix. Include the trailing /."),
+      '#states' => [
+        'visible' => [
+          ':input[id="persistent_identifiers_minter"]' => ['value' => 'doi_crossref.minter.crossrefdois'],
+        ],
+      ],
+    ];
+    $form['doi_crossref_suffix_source'] = [
+      '#type' => 'radios',
+      '#access' => TRUE,
+      '#title' => t('Source of DOI suffix'),
+      '#options' => ['uuid' => 'UUID', 'id' => 'Node ID'],
+      '#default_value' => $config->get('doi_crossref_suffix_source'),
+      '#description' => t("Use either the object's node ID or its UUID as the DOI suffix. " .
+        "UUIDs are longer but are guaranteed to be unique; node IDs may not be unique within a DOI prefix."),
+      '#states' => [
+        'visible' => [
+          ':input[id="persistent_identifiers_minter"]' => ['value' => 'doi_datacite.minter.datacitedois'],
+        ],
+      ],
+    ];
+    $form['doi_crossref_username'] = [
+      '#type' => 'textfield',
+      '#access' => TRUE,
+      '#title' => t('CrossRef API username'),
+      '#default_value' => $config->get('doi_crossref_username'),
+      '#description' => t("Your CrossRef API username"),
+      '#states' => [
+        'visible' => [
+          ':input[id="persistent_identifiers_minter"]' => ['value' => 'doi_crossref.minter.crossrefdois'],
+        ],
+      ],
+    ];
+    $form['doi_crossref_password'] = [
+      '#type' => 'textfield',
+      '#access' => TRUE,
+      '#title' => 'CrossRef API password',
+      '#default_value' => $config->get('doi_crossref_password'),
+      '#description' => t("Your CrossRef API password"),
+      '#states' => [
+        'visible' => [
+          ':input[id="persistent_identifiers_minter"]' => ['value' => 'doi_crossref.minter.crossrefdois'],
+        ],
+      ],
+    ];
+
+    $form['#submit'][] = 'doi_crossref_submit';
+  }
+}
+
+/**
+ * Submit callback.
+ *
+ * Saves the value of the minter-specific field defined in the implementation
+ * of hook_form_alter() above.
+ *
+ * @param array $form
+ *   The form.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ */
+function doi_crossref_submit(array &$form, FormStateInterface $form_state) {
+  $minter = Drupal::config('persistent_identifiers.settings')->get('persistent_identifiers_minter');
+  if ($minter == 'doi_crossref.minter.crossrefdois') {
+    $endpoint = trim($form_state->getValue('doi_crossref_api_endpoint'));
+    $prefix = trim($form_state->getValue('doi_crossref_prefix'));
+    $suffix_source = $form_state->getValue('doi_crossref_suffix_source');
+    $username = trim($form_state->getValue('doi_crossref_username'));
+    $password = trim($form_state->getValue('doi_crossref_password'));
+    $config_factory = \Drupal::configFactory();
+    $config_factory->getEditable('doi_crossref.settings')
+      ->set('doi_crossref_api_endpoint', $endpoint)
+      ->set('doi_crossref_prefix', $prefix)
+      ->set('doi_crossref_suffix_source', $suffix_source)
+      ->set('doi_crossref_username', $username)
+      ->set('doi_crossref_password', $password)
+      ->save();
+  }
+}
