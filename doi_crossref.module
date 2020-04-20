@@ -49,7 +49,7 @@ function doi_crossref_form_alter(&$form, FormStateInterface &$form_state, $form_
         "UUIDs are longer but are guaranteed to be unique; node IDs may not be unique within a DOI prefix."),
       '#states' => [
         'visible' => [
-          ':input[id="persistent_identifiers_minter"]' => ['value' => 'doi_datacite.minter.datacitedois'],
+          ':input[id="persistent_identifiers_minter"]' => ['value' => 'doi_crossref.minter.crossrefdois'],
         ],
       ],
     ];
