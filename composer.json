@@ -1,0 +1,25 @@
+{
+  "name": "bryjbrown/doi_crossref",
+  "description": "Drupal 8 Module that mints DOIs from CrossRef via the Persistent Identifiers module.",
+  "type": "drupal-module",
+  "keywords": ["Drupal"],
+  "homepage": "https://github.com/bryjbrown/doi_crossref",
+  "license": "GPL-2.0+",
+  "authors": [
+    {
+      "name": "Bryan J. Brown",
+      "email": "bjbrown@fsu.edu",
+      "role": "Maintainer"
+    }
+  ],
+  "repositories": [
+    {
+      "name": "mjordan/persistent_identifiers",
+      "type": "vcs",
+      "url": "git@github.com:mjordan/persistent_identifiers.git"
+    }
+  ],
+  "require": {
+    "mjordan/persistent_identifiers": "dev-master"
+  }
+}
