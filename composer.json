@@ -1,9 +1,9 @@
 {
-  "name": "bryjbrown/doi_crossref",
+  "name": "fsulib/doi_crossref",
   "description": "Drupal 8 Module that mints DOIs from CrossRef via the Persistent Identifiers module.",
   "type": "drupal-module",
   "keywords": ["Drupal"],
-  "homepage": "https://github.com/bryjbrown/doi_crossref",
+  "homepage": "https://github.com/fsulib/doi_crossref",
   "license": "GPL-2.0+",
   "authors": [
     {
