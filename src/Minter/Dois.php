@@ -17,6 +17,7 @@ class Dois implements MinterInterface {
     $this->api_endpoint = $config->get('doi_crossref_api_endpoint');
     $this->doi_prefix = $config->get('doi_crossref_prefix');
     $this->doi_suffix_source = $config->get('doi_crossref_suffix_source');
+    $this->doi_suffix_prefix = $config->get('doi_crossref_suffix_prefix');
     $this->api_username = $config->get('doi_crossref_username');
     $this->api_password = $config->get('doi_crossref_password');
   }
@@ -75,6 +76,9 @@ class Dois implements MinterInterface {
     }
     if ($this->doi_suffix_source == 'uuid') {
       $suffix = $entity->Uuid();
+    }
+    if ($this->doi_suffix_prefix != '') {
+      $suffix = $this->doi_suffix_prefix . $suffix;
     }
     $doi = $this->doi_prefix . $suffix;
 

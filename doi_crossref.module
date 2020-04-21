@@ -43,10 +43,24 @@ function doi_crossref_form_alter(&$form, FormStateInterface &$form_state, $form_
       '#type' => 'radios',
       '#access' => TRUE,
       '#title' => t('Source of DOI suffix'),
-      '#options' => ['uuid' => 'UUID', 'id' => 'Node ID'],
+      '#options' => [
+          'uuid' => 'UUID',
+          'id' => 'Node ID',
+      ],
       '#default_value' => $config->get('doi_crossref_suffix_source'),
-      '#description' => t("Use either the object's node ID or its UUID as the DOI suffix. " .
-        "UUIDs are longer but are guaranteed to be unique; node IDs may not be unique within a DOI prefix."),
+      '#description' => t("Use either the object's node ID or its UUID as the DOI suffix. UUIDs are longer but are guaranteed to be unique; node IDs may not be unique within a DOI prefix."),
+      '#states' => [
+        'visible' => [
+          ':input[id="persistent_identifiers_minter"]' => ['value' => 'doi_crossref.minter.crossrefdois'],
+        ],
+      ],
+    ];
+    $form['doi_crossref_suffix_prefix'] = [
+      '#type' => 'textfield',
+      '#access' => TRUE,
+      '#title' => t('DOI suffix prefix.'),
+      '#default_value' => $config->get('doi_crossref_suffix_prefix'),
+      '#description' => t("A custom text string to put in front of your DOI suffix."),
       '#states' => [
         'visible' => [
           ':input[id="persistent_identifiers_minter"]' => ['value' => 'doi_crossref.minter.crossrefdois'],
@@ -99,6 +113,7 @@ function doi_crossref_submit(array &$form, FormStateInterface $form_state) {
     $endpoint = trim($form_state->getValue('doi_crossref_api_endpoint'));
     $prefix = trim($form_state->getValue('doi_crossref_prefix'));
     $suffix_source = $form_state->getValue('doi_crossref_suffix_source');
+    $suffix_prefix = $form_state->getValue('doi_crossref_suffix_prefix');
     $username = trim($form_state->getValue('doi_crossref_username'));
     $password = trim($form_state->getValue('doi_crossref_password'));
     $config_factory = \Drupal::configFactory();
@@ -106,6 +121,7 @@ function doi_crossref_submit(array &$form, FormStateInterface $form_state) {
       ->set('doi_crossref_api_endpoint', $endpoint)
       ->set('doi_crossref_prefix', $prefix)
       ->set('doi_crossref_suffix_source', $suffix_source)
+      ->set('doi_crossref_suffix_prefix', $suffix_prefix)
       ->set('doi_crossref_username', $username)
       ->set('doi_crossref_password', $password)
       ->save();
