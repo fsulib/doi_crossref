@@ -79,7 +79,7 @@ class Dois implements MinterInterface {
     }
     if ($this->doi_suffix_source == 'timerand') {
       $time = time();
-      $rand = bin2hex(random_bytes(4));
+      $rand = bin2hex(random_bytes(2));
       $timerand = $time . '.' . $rand;
       $suffix = $timerand;
     }
