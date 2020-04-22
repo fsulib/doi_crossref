@@ -77,6 +77,12 @@ class Dois implements MinterInterface {
     if ($this->doi_suffix_source == 'uuid') {
       $suffix = $entity->Uuid();
     }
+    if ($this->doi_suffix_source == 'timerand') {
+      $time = time();
+      $rand = bin2hex(random_bytes(4));
+      $timerand = $time . '.' . $rand;
+      $suffix = $timerand;
+    }
     if ($this->doi_suffix_prefix != '') {
       $suffix = $this->doi_suffix_prefix . $suffix;
     }

@@ -46,9 +46,10 @@ function doi_crossref_form_alter(&$form, FormStateInterface &$form_state, $form_
       '#options' => [
           'uuid' => 'UUID',
           'id' => 'Node ID',
+          'timerand' => 'Unix Time + Random 4 Character String',
       ],
       '#default_value' => $config->get('doi_crossref_suffix_source'),
-      '#description' => t("Use either the object's node ID or its UUID as the DOI suffix. UUIDs are longer but are guaranteed to be unique; node IDs may not be unique within a DOI prefix."),
+      '#description' => t("Use either the object's node ID, its UUID or a randomly generated string as the DOI suffix. UUIDs are longer but are guaranteed to be unique; node IDs may not be unique within a DOI prefix. Unix time + random 4 character string is not computationally guaranteed to be unique, but should be unique enough in practice to avoid collisions."),
       '#states' => [
         'visible' => [
           ':input[id="persistent_identifiers_minter"]' => ['value' => 'doi_crossref.minter.crossrefdois'],
