@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doi_batch version="4.3.7"
+xmlns="http://www.crossref.org/schema/4.3.7"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.crossref.org/schema/4.3.7
+http://www.crossref.org/schemas/crossref4.3.7.xsd">
+	<head>
+		<doi_batch_id>_BATCH_ID_</doi_batch_id>
+		<timestamp>_TIMESTAMP_</timestamp>
+		<depositor>
+			<depositor_name>LDbase</depositor_name>
+			<email_address>bryjbrown@gmail.com</email_address>
+		</depositor>
+		<registrant>LDbase</registrant>
+	</head>
+	<body>
+		<database>
+			<database_metadata language="en">
+				<titles><title>LDbase</title></titles>
+			</database_metadata>
+			<dataset dataset_type="collection">
+				<titles><title>_TITLE_</title></titles>
+				<doi_data>
+					<doi>_DOI_</doi>
+					<resource>_URL_</resource>
+				</doi_data>
+			</dataset>
+		</database>
+	</body>
+</doi_batch>
