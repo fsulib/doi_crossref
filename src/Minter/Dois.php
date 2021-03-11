@@ -3,6 +3,7 @@
 namespace Drupal\doi_crossref\Minter;
 
 use Drupal\persistent_identifiers\MinterInterface;
+use Drupal\node\Entity\Node;
 
 /**
  * CrossRef DOI minter.
@@ -88,10 +89,35 @@ class Dois implements MinterInterface {
     }
     $doi = $this->doi_prefix . $suffix;
 
+    $crossref_xml = $this->createCrossrefXml($entity->id(), $doi);
+
     // Programmatically generate the CrossRef XML first
     //$success = $this->postToApi($doi, $crossref_xml);
 
     return $doi;
+  }
+
+  /**
+   * Creates XML to send to the CrossRef API.
+   *
+   * @param string $nid
+   *   The ID of the node to be described.
+   * @param string $doi
+   *   The DOI.
+   * @return str 
+   *   String of CrossRef XML.
+   */
+  public function createCrossrefXml($nid, $doi) {
+    $node = Node::load($nid);
+    $path = \Drupal::service('file_system')->realpath(\Drupal::service('module_handler')->getModule('doi_crossref')->getPath());
+    $dataset_template_path = $path . "/templates/dataset.template.xml";
+    $dataset_template_string = file_get_contents($dataset_template_path);
+    $dataset_submission = str_replace('_BATCH_ID_', "LDBASE-" . $node->uuid(), $dataset_template_string);
+    $dataset_submission = str_replace('_TIMESTAMP_', time(), $dataset_submission);
+    $dataset_submission = str_replace('_TITLE_', $node->getTitle(), $dataset_submission);
+    $dataset_submission = str_replace('_DOI_', $doi, $dataset_submission);
+    $dataset_submission = str_replace('_URL_', \Drupal\Core\Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE])->toString(), $dataset_submission);
+    return $dataset_submission;
   }
 
 
