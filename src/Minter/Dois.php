@@ -4,6 +4,7 @@ namespace Drupal\doi_crossref\Minter;
 
 use Drupal\persistent_identifiers\MinterInterface;
 use Drupal\node\Entity\Node;
+use CURLFile;
 
 /**
  * CrossRef DOI minter.
@@ -90,9 +91,8 @@ class Dois implements MinterInterface {
     $doi = $this->doi_prefix . $suffix;
 
     $crossref_xml = $this->createCrossrefXml($entity->id(), $doi);
-
-    // Programmatically generate the CrossRef XML first
-    //$success = $this->postToApi($doi, $crossref_xml);
+    $response = $this->postToApi($doi, $crossref_xml, $entity->Uuid());
+    //dd($response);
 
     return $doi;
   }
@@ -128,31 +128,14 @@ class Dois implements MinterInterface {
    *   The DOI.
    * @param string $crossref_xml
    *   The CrossRef XML.
+   * @param string $uuid
+   *   The UUID of the node being registered.
    *
    * @return bool
    *   TRUE if successful, FALSE if not.
    */
-  public function postToApi($doi, $crossref_xml) {
-    $drupal_file_path = file_unmanaged_save_data($crossref_xml);
-    $real_file_path = \Drupal::service('file_system')->realpath($drupal_file_path);
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-      CURLOPT_URL => $this->api_endpoint,
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_ENCODING => "",
-      CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 0,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST => "POST",
-      CURLOPT_POSTFIELDS => array(
-        'operation' => 'doMDUpload', 
-        'login_id' => $this->api_username,
-        'login_passwd' => $this->api_password,
-        'fname'=> new CURLFILE($real_file_path)),
-    ));
-    $response = curl_exec($curl);
-    curl_close($curl);
-    file_unmanaged_delete($drupal_file_path);
+  public function postToApi($doi, $crossref_xml, $uuid) {
+    $response = file_put_contents("/tmp/{$uuid}.xml", $crossref_xml);
+    return $response; 
   }
 }
