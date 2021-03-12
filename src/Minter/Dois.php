@@ -91,8 +91,7 @@ class Dois implements MinterInterface {
     $doi = $this->doi_prefix . $suffix;
 
     $crossref_xml = $this->createCrossrefXml($entity->id(), $doi);
-    $response = $this->postToApi($doi, $crossref_xml, $entity->Uuid());
-    //dd($response);
+    $response = $this->postToApi($crossref_xml, $entity->Uuid());
 
     return $doi;
   }
@@ -109,10 +108,12 @@ class Dois implements MinterInterface {
    */
   public function createCrossrefXml($nid, $doi) {
     $node = Node::load($nid);
+    $node_uuid = $node->uuid();
+    $time = time();
     $path = \Drupal::service('file_system')->realpath(\Drupal::service('module_handler')->getModule('doi_crossref')->getPath());
     $dataset_template_path = $path . "/templates/dataset.template.xml";
     $dataset_template_string = file_get_contents($dataset_template_path);
-    $dataset_submission = str_replace('_BATCH_ID_', "LDBASE-" . $node->uuid(), $dataset_template_string);
+    $dataset_submission = str_replace('_BATCH_ID_', "LDBASE.{$time}.{$node_uuid}", $dataset_template_string);
     $dataset_submission = str_replace('_TIMESTAMP_', time(), $dataset_submission);
     $dataset_submission = str_replace('_TITLE_', $node->getTitle(), $dataset_submission);
     $dataset_submission = str_replace('_DOI_', $doi, $dataset_submission);
@@ -124,8 +125,6 @@ class Dois implements MinterInterface {
   /**
    * POSTs the XML to the CrossRef API.
    *
-   * @param string $doi
-   *   The DOI.
    * @param string $crossref_xml
    *   The CrossRef XML.
    * @param string $uuid
@@ -134,8 +133,36 @@ class Dois implements MinterInterface {
    * @return bool
    *   TRUE if successful, FALSE if not.
    */
-  public function postToApi($doi, $crossref_xml, $uuid) {
-    $response = file_put_contents("/tmp/{$uuid}.xml", $crossref_xml);
+  public function postToApi($crossref_xml, $uuid) {
+    $doi_xml_file = "/var/www/html/drupal/web/sites/default/files/crossref-doi-xml/{$uuid}.xml";
+    file_put_contents($doi_xml_file, $crossref_xml);
+
+    $endpoint = $this->api_endpoint;
+    $username = $this->api_username;
+    $password = $this->api_password;
+
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => $endpoint,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => "", 
+      CURLOPT_MAXREDIRS => 10, 
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_POSTFIELDS => array(
+        'operation' => 'doMDUpload',
+        'login_id' => $username,
+        'login_passwd' => $password,
+        'fname'=> new CURLFile($doi_xml_file)),
+    ));
+
+    curl_exec($curl);
+    $response = curl_getinfo($curl);
+    curl_close($curl);
+    unlink($doi_xml_file);
+
     return $response; 
   }
 }
