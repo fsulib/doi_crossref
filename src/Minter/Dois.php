@@ -115,7 +115,7 @@ class Dois implements MinterInterface {
     $dataset_template_string = file_get_contents($dataset_template_path);
     $dataset_submission = str_replace('_BATCH_ID_', "LDBASE.{$time}.{$node_uuid}", $dataset_template_string);
     $dataset_submission = str_replace('_TIMESTAMP_', time(), $dataset_submission);
-    $dataset_submission = str_replace('_TITLE_', $node->getTitle(), $dataset_submission);
+    $dataset_submission = str_replace('_TITLE_', htmlspecialchars($node->getTitle()), $dataset_submission);
     $dataset_submission = str_replace('_DOI_', $doi, $dataset_submission);
     $dataset_submission = str_replace('_URL_', \Drupal\Core\Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE])->toString(), $dataset_submission);
     return $dataset_submission;

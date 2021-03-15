@@ -9,7 +9,7 @@ http://www.crossref.org/schemas/crossref4.3.7.xsd">
 		<timestamp>_TIMESTAMP_</timestamp>
 		<depositor>
 			<depositor_name>LDbase</depositor_name>
-			<email_address>bjbrown@fsu.edu</email_address>
+			<email_address>lib-ldbase-crossref-doi@lists.fsu.edu</email_address>
 		</depositor>
 		<registrant>LDbase</registrant>
 	</head>
