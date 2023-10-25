@@ -1,7 +1,7 @@
 name: 'CrossRef DOIs'
 description: "Module for minting DOIs from CrossRef."
 type: module
-core: 8.x
+package: 'Other'
 core_version_requirement: ^9 || ^10
 dependencies:
  - persistent_identifiers
